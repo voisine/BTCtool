@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		750E6DD92B1963AF000DEE97 /* ScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750E6DD72B1963AF000DEE97 /* ScannerViewController.swift */; };
+		750E6DDA2B1963AF000DEE97 /* CodeScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750E6DD82B1963AF000DEE97 /* CodeScanner.swift */; };
 		75D77B0E2B17F9C3001E83D6 /* ZNBech32m.c in Sources */ = {isa = PBXBuildFile; fileRef = 75D77A4F2B17F9C3001E83D6 /* ZNBech32m.c */; };
 		75D77B0F2B17F9C3001E83D6 /* ZNAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 75D77A502B17F9C3001E83D6 /* ZNAddress.c */; };
 		75D77B102B17F9C3001E83D6 /* ZNTransaction.c in Sources */ = {isa = PBXBuildFile; fileRef = 75D77A562B17F9C3001E83D6 /* ZNTransaction.c */; };
@@ -22,6 +24,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		750E6DD72B1963AF000DEE97 /* ScannerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScannerViewController.swift; sourceTree = "<group>"; };
+		750E6DD82B1963AF000DEE97 /* CodeScanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CodeScanner.swift; sourceTree = "<group>"; };
 		75D77A4D2B17F9C3001E83D6 /* BTCtool-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BTCtool-Bridging-Header.h"; sourceTree = "<group>"; };
 		75D77A4E2B17F9C3001E83D6 /* ZNArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZNArray.h; sourceTree = "<group>"; };
 		75D77A4F2B17F9C3001E83D6 /* ZNBech32m.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ZNBech32m.c; sourceTree = "<group>"; };
@@ -385,6 +389,8 @@
 				75E5EE932B17BA720017326E /* BTCtoolApp.swift */,
 				75E5EE952B17BA720017326E /* ContentView.swift */,
 				75DC35C12B1915E700B29BA0 /* UIImage+Utils.swift */,
+				750E6DD82B1963AF000DEE97 /* CodeScanner.swift */,
+				750E6DD72B1963AF000DEE97 /* ScannerViewController.swift */,
 				75E5EE972B17BA730017326E /* Assets.xcassets */,
 				75E5EE992B17BA730017326E /* Preview Content */,
 			);
@@ -479,7 +485,9 @@
 				75D77B552B17F9C3001E83D6 /* ZNCrypto.c in Sources */,
 				75D77B562B17F9C3001E83D6 /* ZNBIP38Key.c in Sources */,
 				75D77B0E2B17F9C3001E83D6 /* ZNBech32m.c in Sources */,
+				750E6DDA2B1963AF000DEE97 /* CodeScanner.swift in Sources */,
 				75D77B112B17F9C3001E83D6 /* ZNBase58.c in Sources */,
+				750E6DD92B1963AF000DEE97 /* ScannerViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
