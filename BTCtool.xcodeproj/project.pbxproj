@@ -70,7 +70,6 @@
 		75D77AB32B17F9C3001E83D6 /* field_5x52.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = field_5x52.h; sourceTree = "<group>"; };
 		75D77AB42B17F9C3001E83D6 /* field.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = field.h; sourceTree = "<group>"; };
 		75D77AB52B17F9C3001E83D6 /* bench.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bench.h; sourceTree = "<group>"; };
-		75D77AB62B17F9C3001E83D6 /* field_5x52_asm_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = field_5x52_asm_impl.h; sourceTree = "<group>"; };
 		75D77AB72B17F9C3001E83D6 /* field_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = field_impl.h; sourceTree = "<group>"; };
 		75D77AB82B17F9C3001E83D6 /* scalar_4x64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scalar_4x64.h; sourceTree = "<group>"; };
 		75D77AB92B17F9C3001E83D6 /* field_5x52_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = field_5x52_impl.h; sourceTree = "<group>"; };
@@ -228,7 +227,6 @@
 				75D77AB32B17F9C3001E83D6 /* field_5x52.h */,
 				75D77AB42B17F9C3001E83D6 /* field.h */,
 				75D77AB52B17F9C3001E83D6 /* bench.h */,
-				75D77AB62B17F9C3001E83D6 /* field_5x52_asm_impl.h */,
 				75D77AB72B17F9C3001E83D6 /* field_impl.h */,
 				75D77AB82B17F9C3001E83D6 /* scalar_4x64.h */,
 				75D77AB92B17F9C3001E83D6 /* field_5x52_impl.h */,
@@ -622,6 +620,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"BTCtool/Preview Content\"";
+				DEVELOPMENT_TEAM = 4R7S6N88W9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -653,6 +652,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"BTCtool/Preview Content\"";
+				DEVELOPMENT_TEAM = 4R7S6N88W9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
