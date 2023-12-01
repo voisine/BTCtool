@@ -16,13 +16,15 @@ func base58Encode(str: String) -> String? {
 }
 
 struct ContentView: View {
+    var str = base58Encode(str:"Hello, world!")!
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
+            //Image(systemName: "globe")
+            //    .imageScale(.large)
+            //    .foregroundStyle(.tint)
+            Image(uiImage: UIImage.qrCode(data: str.data(using: .utf8)!)!.resize(CGSize(width: 300, height: 300))!)
             //Text("Hello, world!")
-            Text(base58Encode(str:"Hello, world!")!)
+            Text(str)
         }
         .padding()
     }

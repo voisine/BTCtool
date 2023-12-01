@@ -160,19 +160,19 @@ size_t ZNAddressPKH(uint8_t pkh[20], const char *addr, ZNAddrParams params);
 int ZNAddressIsValid(const char *addr, ZNAddrParams params);
 
 // returns a hash value for addr suitable for use in a hashtable
-static size_t ZNAddressHash(const char addr[75])
-{
-    size_t h = 0x811C9dc5; // FNV_offset
-    
-    while (*addr) h = (h ^ (size_t)*(addr++))*0x01000193; // (hash xor octet)*FNV_prime
-    return h;
-}
+//static size_t ZNAddressHash(const char addr[75])
+//{
+//    size_t h = 0x811C9dc5; // FNV_offset
+//    
+//    while (*addr) h = (h ^ (size_t)*(addr++))*0x01000193; // (hash xor octet)*FNV_prime
+//    return h;
+//}
 
 // true if addr and otherAddr are equal
-static int ZNAddressEq(const char addr[75], const char otherAddr[75])
-{
-    return (addr == otherAddr || strncmp(addr, otherAddr, 75) == 0);
-}
+//static int ZNAddressEq(const char addr[75], const char otherAddr[75])
+//{
+//    return (addr == otherAddr || strncmp(addr, otherAddr, 75) == 0);
+//}
 
 #ifdef __cplusplus
 }

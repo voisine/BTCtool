@@ -114,16 +114,16 @@ int ZNTransactionIsSigned(const ZNTransaction *tx);
 int ZNTransactionSign(ZNTransaction *tx, uint8_t forkId, ZNKey keys[], size_t keysCount);
 
 // returns a hash value for tx suitable for use in a hashtable
-static size_t ZNTransactionHash(const ZNTransaction *tx)
-{
-    return *(size_t *)tx->txHash;
-}
+//static size_t ZNTransactionHash(const ZNTransaction *tx)
+//{
+//    return *(size_t *)tx->txHash;
+//}
 
 // true if tx and otherTx have equal txHash values
-static int ZNTransactionEq(const ZNTransaction *tx, const ZNTransaction *otherTx)
-{
-    return (tx == otherTx || memcmp(tx->txHash, otherTx->txHash, sizeof(tx->txHash)) == 0);
-}
+//static int ZNTransactionEq(const ZNTransaction *tx, const ZNTransaction *otherTx)
+//{
+//    return (tx == otherTx || memcmp(tx->txHash, otherTx->txHash, sizeof(tx->txHash)) == 0);
+//}
 
 #ifdef __cplusplus
 }

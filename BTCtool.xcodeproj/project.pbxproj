@@ -14,6 +14,7 @@
 		75D77B122B17F9C3001E83D6 /* ZNKey.c in Sources */ = {isa = PBXBuildFile; fileRef = 75D77A592B17F9C3001E83D6 /* ZNKey.c */; };
 		75D77B552B17F9C3001E83D6 /* ZNCrypto.c in Sources */ = {isa = PBXBuildFile; fileRef = 75D77B0B2B17F9C3001E83D6 /* ZNCrypto.c */; };
 		75D77B562B17F9C3001E83D6 /* ZNBIP38Key.c in Sources */ = {isa = PBXBuildFile; fileRef = 75D77B0C2B17F9C3001E83D6 /* ZNBIP38Key.c */; };
+		75DC35C22B1915E700B29BA0 /* UIImage+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DC35C12B1915E700B29BA0 /* UIImage+Utils.swift */; };
 		75E5EE942B17BA720017326E /* BTCtoolApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E5EE932B17BA720017326E /* BTCtoolApp.swift */; };
 		75E5EE962B17BA720017326E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E5EE952B17BA720017326E /* ContentView.swift */; };
 		75E5EE982B17BA730017326E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 75E5EE972B17BA730017326E /* Assets.xcassets */; };
@@ -138,6 +139,7 @@
 		75D77B0B2B17F9C3001E83D6 /* ZNCrypto.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ZNCrypto.c; sourceTree = "<group>"; };
 		75D77B0C2B17F9C3001E83D6 /* ZNBIP38Key.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ZNBIP38Key.c; sourceTree = "<group>"; };
 		75D77B0D2B17F9C3001E83D6 /* ZNKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZNKey.h; sourceTree = "<group>"; };
+		75DC35C12B1915E700B29BA0 /* UIImage+Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+Utils.swift"; sourceTree = "<group>"; };
 		75E5EE902B17BA720017326E /* BTCtool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BTCtool.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		75E5EE932B17BA720017326E /* BTCtoolApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BTCtoolApp.swift; sourceTree = "<group>"; };
 		75E5EE952B17BA720017326E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -382,6 +384,7 @@
 			children = (
 				75E5EE932B17BA720017326E /* BTCtoolApp.swift */,
 				75E5EE952B17BA720017326E /* ContentView.swift */,
+				75DC35C12B1915E700B29BA0 /* UIImage+Utils.swift */,
 				75E5EE972B17BA730017326E /* Assets.xcassets */,
 				75E5EE992B17BA730017326E /* Preview Content */,
 			);
@@ -470,6 +473,7 @@
 				75E5EE962B17BA720017326E /* ContentView.swift in Sources */,
 				75D77B102B17F9C3001E83D6 /* ZNTransaction.c in Sources */,
 				75D77B122B17F9C3001E83D6 /* ZNKey.c in Sources */,
+				75DC35C22B1915E700B29BA0 /* UIImage+Utils.swift in Sources */,
 				75E5EE942B17BA720017326E /* BTCtoolApp.swift in Sources */,
 				75D77B0F2B17F9C3001E83D6 /* ZNAddress.c in Sources */,
 				75D77B552B17F9C3001E83D6 /* ZNCrypto.c in Sources */,
