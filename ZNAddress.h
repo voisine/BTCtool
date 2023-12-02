@@ -174,6 +174,9 @@ int ZNAddressIsValid(const char *addr, ZNAddrParams params);
 //    return (addr == otherAddr || strncmp(addr, otherAddr, 75) == 0);
 //}
 
+static const ZNAddrParams ZNMainNetParams = { ZN_PUBKEY, ZN_SCRIPT, ZN_PRIVKEY, ZN_BECH32 };
+static const ZNAddrParams ZNTestNetParams = { ZN_PUBKEY_TEST, ZN_SCRIPT_TEST, ZN_PRIVKEY_TEST, ZN_BECH32_TEST };
+
 #ifdef __cplusplus
 }
 #endif

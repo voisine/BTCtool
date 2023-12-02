@@ -3,3 +3,6 @@
 //
 
 #include "ZNBase58.h"
+#include "ZNKey.h"
+#include "ZNBIP38Key.h"
+#include "ZNCrypto.h"
