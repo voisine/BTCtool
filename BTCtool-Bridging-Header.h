@@ -6,3 +6,5 @@
 #include "ZNKey.h"
 #include "ZNBIP38Key.h"
 #include "ZNCrypto.h"
+
+int ZNRunTests(void);

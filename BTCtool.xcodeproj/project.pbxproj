@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		750E6DD92B1963AF000DEE97 /* ScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750E6DD72B1963AF000DEE97 /* ScannerViewController.swift */; };
 		750E6DDA2B1963AF000DEE97 /* CodeScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750E6DD82B1963AF000DEE97 /* CodeScanner.swift */; };
+		75299A9C2B1E4B6A00D0D300 /* test.c in Sources */ = {isa = PBXBuildFile; fileRef = 75299A9B2B1E4B6A00D0D300 /* test.c */; };
 		75D77B0E2B17F9C3001E83D6 /* ZNBech32m.c in Sources */ = {isa = PBXBuildFile; fileRef = 75D77A4F2B17F9C3001E83D6 /* ZNBech32m.c */; };
 		75D77B0F2B17F9C3001E83D6 /* ZNAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 75D77A502B17F9C3001E83D6 /* ZNAddress.c */; };
 		75D77B102B17F9C3001E83D6 /* ZNTransaction.c in Sources */ = {isa = PBXBuildFile; fileRef = 75D77A562B17F9C3001E83D6 /* ZNTransaction.c */; };
@@ -26,6 +27,7 @@
 /* Begin PBXFileReference section */
 		750E6DD72B1963AF000DEE97 /* ScannerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScannerViewController.swift; sourceTree = "<group>"; };
 		750E6DD82B1963AF000DEE97 /* CodeScanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CodeScanner.swift; sourceTree = "<group>"; };
+		75299A9B2B1E4B6A00D0D300 /* test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = test.c; sourceTree = "<group>"; };
 		75D77A4D2B17F9C3001E83D6 /* BTCtool-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BTCtool-Bridging-Header.h"; sourceTree = "<group>"; };
 		75D77A4E2B17F9C3001E83D6 /* ZNArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZNArray.h; sourceTree = "<group>"; };
 		75D77A4F2B17F9C3001E83D6 /* ZNBech32m.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ZNBech32m.c; sourceTree = "<group>"; };
@@ -367,6 +369,7 @@
 				75D77A552B17F9C3001E83D6 /* ZNRefCount.h */,
 				75D77A562B17F9C3001E83D6 /* ZNTransaction.c */,
 				75D77B0A2B17F9C3001E83D6 /* ZNTransaction.h */,
+				75299A9B2B1E4B6A00D0D300 /* test.c */,
 				75E5EE922B17BA720017326E /* BTCtool */,
 				75E5EE912B17BA720017326E /* Products */,
 				75D77A4D2B17F9C3001E83D6 /* BTCtool-Bridging-Header.h */,
@@ -474,6 +477,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				75299A9C2B1E4B6A00D0D300 /* test.c in Sources */,
 				75E5EE962B17BA720017326E /* ContentView.swift in Sources */,
 				75D77B102B17F9C3001E83D6 /* ZNTransaction.c in Sources */,
 				75D77B122B17F9C3001E83D6 /* ZNKey.c in Sources */,

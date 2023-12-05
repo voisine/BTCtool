@@ -10,28 +10,29 @@ import SwiftUI
 func base58Encode(str: String) -> String? {
     var buf = [Int8](repeating: 0, count: 2048)
     return str.withCString { cString in
-        ZNBase58Encode(&buf, buf.count, cString, str.count)
-        return String(validatingUTF8:buf)
+        return (ZNBase58Encode(&buf, buf.count, cString, str.count) > 0) ? String(validatingUTF8:buf) : nil
     }
 }
 
 func bip38privKey(passphrase: String) -> String? {
-    var key = ZNKey()
-    var secret = [Int8](repeating: 0, count: 32)
     var bip38Key = [Int8](repeating: 0, count: 61)
+    var key = ZNKey()
+    ZNKeyClean(&key)
+    key.compressed = 1
 
-    if (SecRandomCopyBytes(kSecRandomDefault, secret.count, &secret) == errSecSuccess) {
-        ZNKeySetSecret(&key, &secret, 1)
-        _ = SecRandomCopyBytes(kSecRandomDefault, secret.count, &secret) // wipe secret
-        
-        ZNKeyBIP38Key(&key, &bip38Key, passphrase, ZNMainNetParams)
+    if (SecRandomCopyBytes(kSecRandomDefault, 32, &key.secret) == errSecSuccess &&
+        ZNKeyBIP38Key(&key, &bip38Key, passphrase, ZNMainNetParams) > 0) {
+        ZNKeyClean(&key)
+        return String(validatingUTF8:bip38Key)
     }
 
-    return String(validatingUTF8:bip38Key)
+    return nil
 }
 
 @main
 struct BTCtoolApp: App {
+    private var test = ZNRunTests()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()

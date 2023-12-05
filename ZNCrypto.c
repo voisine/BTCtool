@@ -1095,8 +1095,8 @@ void ZNAESCTR(uint8_t *buf, const uint8_t *key, size_t keyLen, const uint8_t iv[
 void ZNPBKDF2(uint8_t *dk, size_t dkLen, void (*hash)(uint8_t *, const uint8_t *, size_t), size_t hashLen,
               const uint8_t *pw, size_t pwLen, const uint8_t *salt, size_t saltLen, unsigned rounds)
 {
-    uint8_t _s[0x1000], *s = (saltLen + sizeof(uint32_t) <= 0x1000) ? _s : malloc(saltLen + sizeof(uint32_t));
     uint32_t i, j, U[16], T[16];
+    uint8_t _s[0x1000], *s = (saltLen + sizeof(j) <= 0x1000) ? _s : malloc(saltLen + sizeof(j));
     unsigned r;
     
     assert(dk != NULL || dkLen == 0);
@@ -1111,11 +1111,11 @@ void ZNPBKDF2(uint8_t *dk, size_t dkLen, void (*hash)(uint8_t *, const uint8_t *
     for (i = 0; i < (dkLen + hashLen - 1)/hashLen; i++) {
         j = be32(i + 1);
         memcpy(s + saltLen, &j, sizeof(j));
-        ZNHMAC((uint8_t *)U, hash, hashLen, pw, pwLen, s, sizeof(s)); // U1 = hmac_hash(pw, salt || be32(i))
-        memcpy(T, U, sizeof(U));
+        ZNHMAC((uint8_t *)U, hash, hashLen, pw, pwLen, s, saltLen + sizeof(j)); // U1 = hmac_hash(pw, salt || be32(i))
+        memcpy(T, U, hashLen);
         
         for (r = 1; r < rounds; r++) {
-            ZNHMAC((uint8_t *)U, hash, hashLen, pw, pwLen, (uint8_t *)U, sizeof(U)); // Un = hmac_hash(pw, Un-1)
+            ZNHMAC((uint8_t *)U, hash, hashLen, pw, pwLen, (uint8_t *)U, hashLen); // Un = hmac_hash(pw, Un-1)
             for (j = 0; j < hashLen/sizeof(uint32_t); j++) T[j] ^= U[j]; // Ti = U1 ^ U2 ^ ... ^ Un
         }
         
