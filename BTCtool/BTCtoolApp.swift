@@ -14,24 +14,26 @@ func base58Encode(str: String) -> String? {
     }
 }
 
-func bip38privKey(passphrase: String) -> String? {
-    var bip38Key = [Int8](repeating: 0, count: 61)
+func bip38privKey(passphrase: String) -> (address:String?, bip38Key:String?) {
+    var bip38Key = [CChar](repeating: 0, count: 61)
+    var address = [CChar](repeating: 0, count: 36)
     var key = ZNKey()
     ZNKeyClean(&key)
     key.compressed = 1
 
     if (SecRandomCopyBytes(kSecRandomDefault, 32, &key.secret) == errSecSuccess &&
+        ZNKeyLegacyAddr(&key, &address, ZNMainNetParams) > 0 &&
         ZNKeyBIP38Key(&key, &bip38Key, passphrase, ZNMainNetParams) > 0) {
         ZNKeyClean(&key)
-        return String(validatingUTF8:bip38Key)
+        return (String(validatingUTF8:address), String(validatingUTF8:bip38Key))
     }
 
-    return nil
+    return (nil, nil)
 }
 
 @main
 struct BTCtoolApp: App {
-    private var test = ZNRunTests()
+    //private var test = ZNRunTests()
     
     var body: some Scene {
         WindowGroup {
