@@ -8,8 +8,6 @@
 import UIKit
 import CoreGraphics
 
-private let inputImageKey = "inputImage"
-
 extension UIImage {
     static func qrCode(data: Data,
                        color: CIColor = .black,
@@ -42,21 +40,5 @@ extension UIImage {
         context.scaleBy(x: -1.0, y: 1.0) // mirror
         context.draw(cgImage, in: context.boundingBoxOfClipPath.insetBy(dx: inset, dy: inset))
         return UIGraphicsGetImageFromCurrentImageContext()
-    }
-    
-    func image(withInsets insets: UIEdgeInsets) -> UIImage? {
-        let width = self.size.width + insets.left + insets.right
-        let height = self.size.height + insets.top + insets.bottom
-        UIGraphicsBeginImageContextWithOptions(CGSize(width: width, height: height), false, self.scale)
-        let origin = CGPoint(x: insets.left, y: insets.top)
-        self.draw(at: origin)
-        let imageWithInsets = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return imageWithInsets?.withRenderingMode(renderingMode)
-    }
-    
-    convenience init?(optionalData data: Data?) {
-        guard let data = data else { return nil }
-        self.init(data: data)
-    }
+    }        
 }
