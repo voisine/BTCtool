@@ -8,7 +8,7 @@
 import SwiftUI
 
 func bip38privKey(entropy: String, passphrase: String) -> (address: String?, bip38Key: String?) {
-    var secret = [Int8](repeating: 0, count: 32)
+    var secret = [UInt8](repeating: 0, count: 32)
     var bip38Key = [CChar](repeating: 0, count: 61)
     var address = [CChar](repeating: 0, count: 36)
     var key = ZNKey()
@@ -27,13 +27,6 @@ func bip38privKey(entropy: String, passphrase: String) -> (address: String?, bip
     }
 
     return (nil, nil)
-}
-
-func signTx(privKey: UnsafeMutablePointer<ZNKey>!, tx: UnsafeMutablePointer<ZNTransaction>?) -> [Int8]? {
-    var buf = [Int8](repeating: 0, count: 0x1000)
-
-    ZNTransactionSign(tx, 0, privKey, 1)
-    return [Int8](buf.prefix(ZNTransactionSerialize(tx, &buf, buf.count)))
 }
 
 @main
