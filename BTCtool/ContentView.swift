@@ -17,6 +17,10 @@ struct ContentView: View {
     @State private var password2 = ""
     @State private var qr1Data: String? = nil
     @State private var qr2Data: String? = nil
+    
+    //"a\xc3\xb1\xc3\x28\xa0\xa1\xe2\x82\xa1\xe2\x28\xa1\xe2\x82\x28\xf0\x90\x8c\xbc\xf0\x28\x8c\xbc\xf0\x90\x28\xbc\xf0\x28\x8c\x28\xf8\xa1\xa1\xa1\xa1\xfc\xa1\xa1\xa1\xa1\xa1"
+
+    @State private var tx: UnsafeMutablePointer<ZNTransaction>?
     var body: some View {
         VStack {
             if (qr1Data != nil) {
@@ -38,6 +42,7 @@ struct ContentView: View {
         .sheet(isPresented: $isPresentingScanner) {
             CodeScannerView(codeTypes: [.qr], showViewfinder: true, simulatedData: "Hello, world!") { response in
                 if case let .success(result) = response {
+                    if (tx == nil) { tx = ZNTransactionParse([UInt8](result.data!), result.data!.count, nil) }
                     qr1Data = nil
                     qr2Data = result.string
                     isPresentingScanner = false
