@@ -20,6 +20,7 @@ struct ContentView: View {
     @State private var incorrectPassword = false
     @State private var qr1Data: Data? = nil
     @State private var qr2Data: Data? = nil
+    @State private var qr2Label = ""
     
     //"a\xc3\xb1\xc3\x28\xa0\xa1\xe2\x82\xa1\xe2\x28\xa1\xe2\x82\x28\xf0\x90\x8c\xbc\xf0\x28\x8c\xbc\xf0\x90\x28\xbc\xf0\x28\x8c\x28\xf8\xa1\xa1\xa1\xa1\xfc\xa1\xa1\xa1\xa1\xa1"
 
@@ -27,19 +28,18 @@ struct ContentView: View {
     var body: some View {
         VStack {
             if (qr1Data != nil) {
-                Image(uiImage: UIImage.qrCode(data: qr1Data!)!.resize(CGSize(width: 200, height: 200))!)
-                Text(String(data: qr1Data!, encoding: .utf8) ?? "[binary]").font(.system(.body, design: .monospaced))
+                Image(uiImage: UIImage.qrCode(data: qr1Data!)!.resize(CGSize(width: 150, height: 150))!)
+                Text(String(data: qr1Data!, encoding: .utf8) ?? "[binary]").font(.system(.caption, design: .monospaced))
             }
             if (qr2Data != nil) {
-                Image(uiImage: UIImage.qrCode(data: qr2Data!)!.resize(CGSize(width: 310, height: 310))!)
-                Text(String(data: qr2Data!, encoding: .utf8) ?? "[binary]").font(.system(.body, design: .monospaced))
+                Image(uiImage: UIImage.qrCode(data: qr2Data!)!.resize(CGSize(width: 375, height: 375))!)
+                Text(String(data: qr2Data!, encoding: .utf8) ?? qr2Label).font(.system(.caption, design: .monospaced))
             }
-            Button("Sign Transaction") { presentScanner = true }
+            Button((tx == nil) ? "Scan Unsigned Tx" : "Scan private key") { presentScanner = true }
             .padding()
             Button("Create Paper Key") { enterEntropy = true }
         }
         .buttonStyle(.bordered)
-        .padding()
         .sheet(isPresented: $presentScanner) {
             CodeScannerView(codeTypes: [.qr], showViewfinder: true, simulatedData: "Hello, world!") { response in
                 if case let .success(result) = response {
@@ -59,7 +59,27 @@ struct ContentView: View {
                             ZNKeyClean(&key)
                         }
                     }
-                    else { tx = ZNTransactionParse([UInt8](result.data!), result.data!.count, nil) }
+                    else { 
+                        tx = ZNTransactionParse([UInt8](result.data!), result.data!.count, nil)
+
+                        if (tx != nil) {
+                            qr2Label = ""
+                            
+                            for i in 0..<tx!.pointee.inCount {
+                                let amount = Double(tx!.pointee.inputs[i].amount/1000)/Double(ZN_SATOSHIS/1000)
+                                qr2Label += ((qr2Label == "") ? "" : ", ") + "\(amount)"
+                            }
+
+                            qr2Label += "\n->"
+                            
+                            for i in 0..<tx!.pointee.outCount {
+                                var addr = [CChar](repeating: 0, count: 75)
+                                let amount = Double(tx!.pointee.outputs[i].amount/1000)/Double(ZN_SATOSHIS/1000)
+                                ZNTxOutputAddress(&(tx!.pointee.outputs[i]), &addr, ZNMainNetParams)
+                                qr2Label += "\n\(amount) " + (String(validatingUTF8: addr) ?? "[?]")
+                            }
+                        }
+                    }
                     
                     qr1Data = nil
                     qr2Data = result.data
