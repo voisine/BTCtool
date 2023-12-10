@@ -47,10 +47,10 @@ extern "C" {
 #define zn_ref_retain(ptr) (++((_ZNRef *)(ptr))[-1].count, (ptr))
 
 // ptr may be NULL
-#define zn_ref_release(ptr) do {\
-    _ZNRef *_zn_r = (_ZNRef *)(ptr);\
-    if (_zn_r && --_zn_r[-1].count == 0) _zn_r[-1].free(_zn_r);\
-} while (0)
+//#define zn_ref_release(ptr) do {\
+//    _ZNRef *_zn_r = (_ZNRef *)(ptr);\
+//    if (_zn_r && --_zn_r[-1].count == 0) _zn_r[-1].free(_zn_r);\
+//} while (0)
 
 // call this at the end of free_frunc() passed into zn_ref_new()
 #define zn_ref_free(ptr) _ZNRefFree(ptr)
@@ -61,6 +61,12 @@ typedef struct _ZNRefStruct {
     void (*free)(void *);
     unsigned count;
 } _ZNRef;
+
+static void zn_ref_release(void *ptr)
+{
+    _ZNRef *r = ptr;
+    if (r && --r[-1].count == 0) r[-1].free(r);
+}
 
 static void _ZNRefFree(void *ptr)
 {

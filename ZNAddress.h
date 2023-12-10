@@ -177,6 +177,19 @@ int ZNAddressIsValid(const char *addr, ZNAddrParams params);
 static const ZNAddrParams ZNMainNetParams = { ZN_PUBKEY, ZN_SCRIPT, ZN_PRIVKEY, ZN_BECH32 };
 static const ZNAddrParams ZNTestNetParams = { ZN_PUBKEY_TEST, ZN_SCRIPT_TEST, ZN_PRIVKEY_TEST, ZN_BECH32_TEST };
 
+#define _zn_hexu(c) ((c) >= '0' && (c) <= '9' ? (c) - '0' : (c) >= 'A' && (c) <= 'F' ? (c) + 0xa - 'A' :\
+                     (c) >= 'a' && (c) <= 'f' ? (c) + 0xa - 'a' : -1)
+
+static uint8_t *ZNHexDecode(uint8_t *buf, size_t bufLen, const char *hex) {
+    size_t i;
+
+    for (i = 0; i < bufLen && _zn_hexu(hex[i*2]) != -1 && _zn_hexu(hex[i*2 + 1]) != -1; i++) {
+        buf[i] = ((_zn_hexu(hex[i*2]) << 4) | _zn_hexu(hex[i*2 + 1])) & 0xff;
+    }
+
+    return (hex[i*2] == '\0') ? buf : NULL;
+}
+
 #ifdef __cplusplus
 }
 #endif

@@ -125,6 +125,12 @@ int ZNTransactionSign(ZNTransaction *tx, uint8_t forkId, ZNKey keys[], size_t ke
 //    return (tx == otherTx || memcmp(tx->txHash, otherTx->txHash, sizeof(tx->txHash)) == 0);
 //}
 
+// outputs below this amount are uneconomical due to fees (ZN_MIN_OUTPUT_AMT is the minimum relayable output amount)
+uint64_t ZNMinOutputAmount(uint64_t feePerKb);
+
+// fee added for a transaction of the given virtual size
+uint64_t ZNFeeForTxVSize(uint64_t feePerKb, size_t vsize);
+
 #ifdef __cplusplus
 }
 #endif
