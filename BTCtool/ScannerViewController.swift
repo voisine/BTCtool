@@ -78,7 +78,7 @@ extension CodeScannerView {
                             feature.topRight,
                             feature.topLeft
                         ]
-                        let result = ScanResult(string: qrCodeLink, data: feature.symbolDescriptor?.payload, type: .qr, image: qrcodeImg, corners: corners)
+                        let result = ScanResult(string: qrCodeLink, type: .qr, image: qrcodeImg, corners: corners)
                         found(result)
                     }
 
@@ -139,8 +139,7 @@ extension CodeScannerView {
         override public func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
             // Send back their simulated data, as if it was one of the types they were scanning for
             found(ScanResult(
-                string: parentView.simulatedData, data: parentView.simulatedData.data(using: .utf8),
-                type: parentView.codeTypes.first ?? .qr, image: nil, corners: []
+                string: parentView.simulatedData, type: parentView.codeTypes.first ?? .qr, image: nil, corners: []
             ))
         }
         
@@ -454,8 +453,6 @@ extension CodeScannerView {
             if let metadataObject = metadataObjects.first {
                 guard let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject else { return }
                 guard let stringValue = readableObject.stringValue else { return }
-                let dataValue = (readableObject.descriptor as? CIQRCodeDescriptor)?.payload
-                
                 guard didFinishScanning == false else { return }
                 
                 let photoSettings = AVCapturePhotoSettings()
@@ -463,7 +460,7 @@ extension CodeScannerView {
                 isCapturing = true
                 
                 handler = { [self] image in
-                    let result = ScanResult(string: stringValue, data: dataValue, type: readableObject.type, image: image, corners: readableObject.corners)
+                    let result = ScanResult(string: stringValue, type: readableObject.type, image: image, corners: readableObject.corners)
                     
                     switch parentView.scanMode {
                     case .once:

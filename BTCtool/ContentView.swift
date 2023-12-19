@@ -186,16 +186,12 @@ struct ContentView: View {
         }
         
         let outAmount = UInt64((Double(amount) ?? 0)*Double(ZN_SATOSHIS) + 0.5)
-        var scriptPubKey = [UInt8](repeating:0, count:42)
-        var scriptPKLen = ZNAddressScriptPubKey(&scriptPubKey, toAddress, ZNMainNetParams)
-        ZNTransactionAddOutput(tx, outAmount, &scriptPubKey, scriptPKLen)
+        var scriptPK = [UInt8](repeating:0, count:42)
+        var scriptPKLen = ZNAddressScriptPubKey(&scriptPK, toAddress, ZNMainNetParams)
+        ZNTransactionAddOutput(tx, outAmount, &scriptPK, scriptPKLen)
         let fee = ZNFeeForTxVSize(UInt64(feeRate!.priority*1000), ZNTransactionVSize(tx) + Int(ZN_OUTPUT_SIZE))
-        scriptPKLen = ZNAddressScriptPubKey(&scriptPubKey, changeAddress, ZNMainNetParams)
-
-        if (total > outAmount + fee) {
-            ZNTransactionAddOutput(tx, (total - outAmount) - fee, &scriptPubKey, scriptPKLen)
-        }
-        //XXX make sure inputs are sufficent
+        scriptPKLen = ZNAddressScriptPubKey(&scriptPK, changeAddress, ZNMainNetParams)
+        if (total > outAmount + fee) { ZNTransactionAddOutput(tx, (total - outAmount) - fee, &scriptPK, scriptPKLen) }
         labelTx()
         var buf = [UInt8](repeating: 0, count: 0x1000)
         let bufLen = ZNTransactionSerialize(tx, &buf, buf.count)
