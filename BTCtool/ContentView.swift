@@ -47,6 +47,7 @@ struct ContentView: View {
             }
             
             Button((tx == nil || ZNTransactionIsSigned(tx) != 0) ? "Scan Unsigned Tx" : "Scan private key") {
+                if (qr2Data == nil) { qr2Data = UIPasteboard.general.string?.data(using: .utf8) }
                 presentScanner = true
             }
             .padding()
@@ -58,8 +59,9 @@ struct ContentView: View {
             }
         }
         .buttonStyle(.bordered)
-        .sheet(isPresented: $presentScanner, onDismiss:dismissed) {
-            CodeScannerView(codeTypes: [.qr], showViewfinder: true, simulatedData: "Hello, world!") { response in
+        .sheet(isPresented: $presentScanner, onDismiss: { if (bip38Key != "") { enterPassword = true } }) {
+            CodeScannerView(codeTypes: [.qr], showViewfinder: true,
+                            simulatedData: UIPasteboard.general.string ?? "Hello, world!") { response in
                 if case let .success(result) = response { scanResult(result: result) }
             }
         }
@@ -100,11 +102,7 @@ struct ContentView: View {
         }
         //.alert(error, isPresented: $showError)
     }
-    
-    func dismissed() {
-        if (bip38Key != "") { enterPassword = true }
-    }
-    
+
     func scanResult(result: ScanResult) {
         if (tx != nil) {
             if (ZNBIP38KeyIsValid(result.string) != 0) {
@@ -120,8 +118,7 @@ struct ContentView: View {
                 let bufLen = ZNTransactionSerialize(tx, &buf, buf.count)
                 qr2Data = buf.prefix(bufLen).reduce("") { $0 + String(format: "%02hhx", $1) }.data(using: .utf8)
                 labelTx()
-                UIPasteboard.general.setValue(String(data: qr2Data!, encoding: .utf8) ?? "",
-                                              forPasteboardType: UTType.plainText.identifier)
+                UIPasteboard.general.string = String(data: qr2Data!, encoding: .utf8)
             }
         }
         else {
@@ -131,7 +128,7 @@ struct ContentView: View {
             ZNHexDecode(&buf, buf.count, result.string)
             tx = ZNTransactionParse(buf, buf.count, nil)
             if (tx != nil) { labelTx() }
-            UIPasteboard.general.setValue(result.string, forPasteboardType: UTType.plainText.identifier)
+            UIPasteboard.general.string = result.string
         }
         
         qr1Data = nil
@@ -167,8 +164,7 @@ struct ContentView: View {
             let bufLen = ZNTransactionSerialize(tx, &buf, buf.count)
             qr2Data = buf.prefix(bufLen).reduce("") { $0 + String(format: "%02hhx", $1) }.data(using: .utf8)
             labelTx()
-            UIPasteboard.general.setValue(String(data: qr2Data!, encoding: .utf8) ?? "",
-                                          forPasteboardType: UTType.plainText.identifier)
+            UIPasteboard.general.string = String(data: qr2Data!, encoding: .utf8)
         }
         else { incorrectPassword = true }
     }
@@ -193,17 +189,18 @@ struct ContentView: View {
         var scriptPubKey = [UInt8](repeating:0, count:42)
         var scriptPKLen = ZNAddressScriptPubKey(&scriptPubKey, toAddress, ZNMainNetParams)
         ZNTransactionAddOutput(tx, outAmount, &scriptPubKey, scriptPKLen)
+        let fee = ZNFeeForTxVSize(UInt64(feeRate!.priority*1000), ZNTransactionVSize(tx) + Int(ZN_OUTPUT_SIZE))
         scriptPKLen = ZNAddressScriptPubKey(&scriptPubKey, changeAddress, ZNMainNetParams)
-        ZNTransactionAddOutput(tx, (total - outAmount) -
-                               ZNFeeForTxVSize(UInt64(feeRate!.priority*1000), ZNTransactionVSize(tx)),
-                               &scriptPubKey, scriptPKLen)
+
+        if (total > outAmount + fee) {
+            ZNTransactionAddOutput(tx, (total - outAmount) - fee, &scriptPubKey, scriptPKLen)
+        }
         //XXX make sure inputs are sufficent
         labelTx()
         var buf = [UInt8](repeating: 0, count: 0x1000)
         let bufLen = ZNTransactionSerialize(tx, &buf, buf.count)
         qr2Data = buf.prefix(bufLen).reduce("") { $0 + String(format: "%02hhx", $1) }.data(using: .utf8)
-        UIPasteboard.general.setValue(String(data: qr2Data!, encoding: .utf8) ?? "",
-                                      forPasteboardType: UTType.plainText.identifier)
+        UIPasteboard.general.string = String(data: qr2Data!, encoding: .utf8)
         zn_ref_release(tx)
         tx = nil
     }
