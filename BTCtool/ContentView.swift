@@ -104,11 +104,12 @@ struct ContentView: View {
     }
 
     func scanResult(result: ScanResult) {
+        if (ZNBIP38KeyIsValid(result.string) != 0) {
+            bip38Key = result.string
+        }
+
         if (tx != nil) {
-            if (ZNBIP38KeyIsValid(result.string) != 0) {
-                bip38Key = result.string
-            }
-            else if (ZNPrivKeyIsValid(result.string, ZNMainNetParams) != 0) {
+            if (ZNPrivKeyIsValid(result.string, ZNMainNetParams) != 0) {
                 var key = ZNKey()
                 var buf = [UInt8](repeating: 0, count: 0x1000)
                 
@@ -153,17 +154,29 @@ struct ContentView: View {
     
     func signTx() {
         var key = ZNKey()
-        var buf = [UInt8](repeating: 0, count: 0x1000)
-        
+
         if (ZNKeySetBIP38Key(&key, bip38Key, password, ZNMainNetParams) != 0) {
-            ZNTransactionSign(tx, 0, &key, 1)
-            ZNKeyClean(&key)
-            password = ""
-            bip38Key = ""
+            if (tx != nil) {
+                ZNTransactionSign(tx, 0, &key, 1)
+                ZNKeyClean(&key)
+                password = ""
+                bip38Key = ""
+                var buf = [UInt8](repeating: 0, count: 0x1000)
+                let bufLen = ZNTransactionSerialize(tx, &buf, buf.count)
+                qr2Data = buf.prefix(bufLen).reduce("") { $0 + String(format: "%02hhx", $1) }.data(using: .utf8)
+                labelTx()
+            }
+            else {
+                var privKey = [CChar](repeating: 0, count: 53)
+                ZNKeyPrivKey(&key, &privKey, ZNMainNetParams)
+                ZNKeyClean(&key)
+                password = ""
+                bip38Key = ""
+                qr2Label = String(validatingUTF8: privKey) ?? "[?]"
+                qr2Data = qr2Label.data(using: .utf8)
+            }
+            
             incorrectPassword = false
-            let bufLen = ZNTransactionSerialize(tx, &buf, buf.count)
-            qr2Data = buf.prefix(bufLen).reduce("") { $0 + String(format: "%02hhx", $1) }.data(using: .utf8)
-            labelTx()
             UIPasteboard.general.string = String(data: qr2Data!, encoding: .utf8)
         }
         else { incorrectPassword = true }
@@ -191,7 +204,11 @@ struct ContentView: View {
         ZNTransactionAddOutput(tx, outAmount, &scriptPK, scriptPKLen)
         let fee = ZNFeeForTxVSize(UInt64(feeRate!.priority*1000), ZNTransactionVSize(tx) + Int(ZN_OUTPUT_SIZE))
         scriptPKLen = ZNAddressScriptPubKey(&scriptPK, changeAddress, ZNMainNetParams)
-        if (total > outAmount + fee) { ZNTransactionAddOutput(tx, (total - outAmount) - fee, &scriptPK, scriptPKLen) }
+
+        if (scriptPKLen > 0 && total > outAmount + fee) {
+            ZNTransactionAddOutput(tx, (total - outAmount) - fee, &scriptPK, scriptPKLen) 
+        }
+
         labelTx()
         var buf = [UInt8](repeating: 0, count: 0x1000)
         let bufLen = ZNTransactionSerialize(tx, &buf, buf.count)
@@ -234,7 +251,7 @@ struct ContentView: View {
                 let feeRate = try JSONDecoder().decode(feeRates.self, from: data)
                 DispatchQueue.main.async {
                     self.feeRate = feeRate
-                    createTx()
+                    if (utxos.count > 0) { createTx() }
                 }
             }
             catch { print(error.localizedDescription) }
@@ -242,19 +259,31 @@ struct ContentView: View {
     }
 
     func fetchUTXOs(address: String) {
-        guard let url = URL(string: "https://blockchain.info/unspent?active=" + address) else { return }
-
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data else { return }
-            do {
-                let utxos = try JSONDecoder().decode(UTXOs.self, from: data)
-                DispatchQueue.main.async { 
-                    self.utxos = utxos.unspent_outputs
-                    fetchFeeRate()
-                }
+        for addr in address.split(separator: ",") {
+            let input = addr.split(separator: ":")
+            
+            if (input.count == 4) {
+                self.utxos.append(UTXO(tx_hash: String(input[1]), tx_output_n: Int(String(input[2])) ?? 0,
+                                       script: String(input[0]), value: Int(String(input[3])) ?? 0))
             }
-            catch { print(error.localizedDescription) }
-        }.resume()
+            else {
+                guard let url = URL(string: "https://blockchain.info/unspent?active=" + address) else { return }
+
+                URLSession.shared.dataTask(with: url) { data, response, error in
+                    guard let data = data else { return }
+                    do {
+                        let utxos = try JSONDecoder().decode(UTXOs.self, from: data)
+                        DispatchQueue.main.async {
+                            self.utxos = utxos.unspent_outputs
+                            fetchFeeRate()
+                        }
+                    }
+                    catch { print(error.localizedDescription) }
+                }.resume()
+            }
+        }
+        
+        if (self.utxos.count > 0) { fetchFeeRate() }
     }
 
     struct UTXOs: Codable {
