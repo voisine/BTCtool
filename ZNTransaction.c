@@ -644,7 +644,7 @@ int ZNTransactionSign(ZNTransaction *tx, uint8_t forkId, ZNKey keys[], size_t ke
 // outputs below this amount are uneconomical due to fees (ZN_MIN_OUTPUT_AMT is the minimum relayable output amount)
 uint64_t ZNMinOutputAmount(uint64_t feePerKb)
 {
-    uint64_t amount = ZNFeeForTxVSize(feePerKb, (ZN_OUTPUT_SIZE + ZN_INPUT_SIZE)*2);
+    uint64_t amount = ZNFeeForTxVSize(feePerKb, ZN_OUTPUT_SIZE + ZN_INPUT_SIZE);
     
     return (amount > ZN_MIN_OUTPUT_AMT) ? amount : ZN_MIN_OUTPUT_AMT;
 }
