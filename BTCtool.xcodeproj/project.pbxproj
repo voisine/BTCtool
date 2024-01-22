@@ -10,6 +10,8 @@
 		750E6DD92B1963AF000DEE97 /* ScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750E6DD72B1963AF000DEE97 /* ScannerViewController.swift */; };
 		750E6DDA2B1963AF000DEE97 /* CodeScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750E6DD82B1963AF000DEE97 /* CodeScanner.swift */; };
 		75299A9C2B1E4B6A00D0D300 /* test.c in Sources */ = {isa = PBXBuildFile; fileRef = 75299A9B2B1E4B6A00D0D300 /* test.c */; };
+		75CDC1212B5F050800BDC658 /* ZNBIP32Sequence.c in Sources */ = {isa = PBXBuildFile; fileRef = 75CDC11F2B5F050800BDC658 /* ZNBIP32Sequence.c */; };
+		75CDC1252B5F06EF00BDC658 /* ZNBIP39Mnemonic.c in Sources */ = {isa = PBXBuildFile; fileRef = 75CDC1222B5F06EF00BDC658 /* ZNBIP39Mnemonic.c */; };
 		75D77B0E2B17F9C3001E83D6 /* ZNBech32m.c in Sources */ = {isa = PBXBuildFile; fileRef = 75D77A4F2B17F9C3001E83D6 /* ZNBech32m.c */; };
 		75D77B0F2B17F9C3001E83D6 /* ZNAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 75D77A502B17F9C3001E83D6 /* ZNAddress.c */; };
 		75D77B102B17F9C3001E83D6 /* ZNTransaction.c in Sources */ = {isa = PBXBuildFile; fileRef = 75D77A562B17F9C3001E83D6 /* ZNTransaction.c */; };
@@ -28,6 +30,11 @@
 		750E6DD72B1963AF000DEE97 /* ScannerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScannerViewController.swift; sourceTree = "<group>"; };
 		750E6DD82B1963AF000DEE97 /* CodeScanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CodeScanner.swift; sourceTree = "<group>"; };
 		75299A9B2B1E4B6A00D0D300 /* test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = test.c; sourceTree = "<group>"; };
+		75CDC11F2B5F050800BDC658 /* ZNBIP32Sequence.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ZNBIP32Sequence.c; sourceTree = "<group>"; };
+		75CDC1202B5F050800BDC658 /* ZNBIP32Sequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZNBIP32Sequence.h; sourceTree = "<group>"; };
+		75CDC1222B5F06EF00BDC658 /* ZNBIP39Mnemonic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ZNBIP39Mnemonic.c; sourceTree = "<group>"; };
+		75CDC1232B5F06EF00BDC658 /* ZNBIP39Mnemonic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZNBIP39Mnemonic.h; sourceTree = "<group>"; };
+		75CDC1242B5F06EF00BDC658 /* ZNBIP39WordsEn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZNBIP39WordsEn.h; sourceTree = "<group>"; };
 		75D77A4D2B17F9C3001E83D6 /* BTCtool-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BTCtool-Bridging-Header.h"; sourceTree = "<group>"; };
 		75D77A4E2B17F9C3001E83D6 /* ZNArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZNArray.h; sourceTree = "<group>"; };
 		75D77A4F2B17F9C3001E83D6 /* ZNBech32m.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ZNBech32m.c; sourceTree = "<group>"; };
@@ -360,8 +367,13 @@
 				75D77A522B17F9C3001E83D6 /* ZNBase58.h */,
 				75D77A4F2B17F9C3001E83D6 /* ZNBech32m.c */,
 				75D77A542B17F9C3001E83D6 /* ZNBech32m.h */,
+				75CDC11F2B5F050800BDC658 /* ZNBIP32Sequence.c */,
+				75CDC1202B5F050800BDC658 /* ZNBIP32Sequence.h */,
 				75D77B0C2B17F9C3001E83D6 /* ZNBIP38Key.c */,
 				75D77A532B17F9C3001E83D6 /* ZNBIP38Key.h */,
+				75CDC1222B5F06EF00BDC658 /* ZNBIP39Mnemonic.c */,
+				75CDC1232B5F06EF00BDC658 /* ZNBIP39Mnemonic.h */,
+				75CDC1242B5F06EF00BDC658 /* ZNBIP39WordsEn.h */,
 				75D77B0B2B17F9C3001E83D6 /* ZNCrypto.c */,
 				75D77A572B17F9C3001E83D6 /* ZNCrypto.h */,
 				75D77A592B17F9C3001E83D6 /* ZNKey.c */,
@@ -480,6 +492,7 @@
 				75299A9C2B1E4B6A00D0D300 /* test.c in Sources */,
 				75E5EE962B17BA720017326E /* ContentView.swift in Sources */,
 				75D77B102B17F9C3001E83D6 /* ZNTransaction.c in Sources */,
+				75CDC1212B5F050800BDC658 /* ZNBIP32Sequence.c in Sources */,
 				75D77B122B17F9C3001E83D6 /* ZNKey.c in Sources */,
 				75DC35C22B1915E700B29BA0 /* UIImage+Utils.swift in Sources */,
 				75E5EE942B17BA720017326E /* BTCtoolApp.swift in Sources */,
@@ -489,6 +502,7 @@
 				75D77B0E2B17F9C3001E83D6 /* ZNBech32m.c in Sources */,
 				750E6DDA2B1963AF000DEE97 /* CodeScanner.swift in Sources */,
 				75D77B112B17F9C3001E83D6 /* ZNBase58.c in Sources */,
+				75CDC1252B5F06EF00BDC658 /* ZNBIP39Mnemonic.c in Sources */,
 				750E6DD92B1963AF000DEE97 /* ScannerViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

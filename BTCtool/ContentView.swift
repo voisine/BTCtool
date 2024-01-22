@@ -37,7 +37,7 @@ struct ContentView: View {
         VStack {
             if (qr1Data != nil) {
                 Image(uiImage: UIImage.qrCode(data: qr1Data!)!.resize(CGSize(width: 150, height: 150))!)
-                Text(String(data: qr1Data!, encoding: .utf8) ?? "[binary]").font(.system(.caption, design: .monospaced))
+                Text(String(data: qr1Data!, encoding: .utf8) ?? "[?]").font(.system(.caption, design: .monospaced))
             }
             
             if (qr2Data != nil) {
@@ -47,7 +47,7 @@ struct ContentView: View {
             }
             
             Button((tx == nil || ZNTransactionIsSigned(tx) != 0) ? "Scan Unsigned Tx" : "Scan private key") {
-                if (qr2Data == nil) { qr2Data = UIPasteboard.general.string?.data(using: .utf8) }
+                if (qr2Data == nil) { scanResult(result: UIPasteboard.general.string ?? "") }
                 presentScanner = true
             }
             .padding()
@@ -62,7 +62,7 @@ struct ContentView: View {
         .sheet(isPresented: $presentScanner, onDismiss: { if (bip38Key != "") { enterPassword = true } }) {
             CodeScannerView(codeTypes: [.qr], showViewfinder: true,
                             simulatedData: UIPasteboard.general.string ?? "Hello, world!") { response in
-                if case let .success(result) = response { scanResult(result: result) }
+                if case let .success(result) = response { scanResult(result: result.string) }
             }
         }
         .alert("Enter 50 dice rolls", isPresented: $enterEntropy) {
@@ -103,17 +103,14 @@ struct ContentView: View {
         //.alert(error, isPresented: $showError)
     }
 
-    func scanResult(result: ScanResult) {
-        if (ZNBIP38KeyIsValid(result.string) != 0) {
-            bip38Key = result.string
-        }
+    func scanResult(result: String) {
+        if (ZNBIP38KeyIsValid(result) != 0) { bip38Key = result }
 
         if (tx != nil) {
-            if (ZNPrivKeyIsValid(result.string, ZNMainNetParams) != 0) {
+            if (ZNPrivKeyIsValid(result, ZNMainNetParams) != 0) {
                 var key = ZNKey()
                 var buf = [UInt8](repeating: 0, count: 0x1000)
-                
-                ZNKeySetPrivKey(&key, result.string, ZNMainNetParams)
+                ZNKeySetPrivKey(&key, result, ZNMainNetParams)
                 ZNTransactionSign(tx, 0, &key, 1)
                 ZNKeyClean(&key)
                 let bufLen = ZNTransactionSerialize(tx, &buf, buf.count)
@@ -123,13 +120,13 @@ struct ContentView: View {
             }
         }
         else {
-            qr2Data = result.string.data(using: .utf8)
+            qr2Data = result.data(using: .utf8)
             qr2Label = ""
-            var buf = [UInt8](repeating:0, count:result.string.count/2)
-            ZNHexDecode(&buf, buf.count, result.string)
+            var buf = [UInt8](repeating:0, count:result.count/2)
+            ZNHexDecode(&buf, buf.count, result)
             tx = ZNTransactionParse(buf, buf.count, nil)
             if (tx != nil) { labelTx() }
-            UIPasteboard.general.string = result.string
+            UIPasteboard.general.string = result
         }
         
         qr1Data = nil
