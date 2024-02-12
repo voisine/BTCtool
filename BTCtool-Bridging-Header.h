@@ -7,5 +7,6 @@
 #include "ZNCrypto.h"
 #include "ZNTransaction.h"
 #include "ZNBIP39Mnemonic.h"
+#include "ZNBIP32Sequence.h"
 
 int ZNRunTests(void);
