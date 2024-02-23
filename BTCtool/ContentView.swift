@@ -36,6 +36,8 @@ struct ContentView: View {
     @State private var error = ""
     @State private var tx: UnsafeMutablePointer<ZNTransaction>?
     @State private var isScanningChain = false
+    @State private var scanIdx = UInt32(0)
+    @State private var scanChange = UInt32(0)
     
     var body: some View {
         VStack {
@@ -51,7 +53,12 @@ struct ContentView: View {
             }
             else if (qr2Label.count > 0) { Text(qr2Label).font(.system(.caption, design: .monospaced)) }
             
-            Button("Scan backup phrase") { enterPhrase = true }.padding()
+            Button((phrase == "") ? "Scan backup phrase" : "Continue phrase scan") {
+                if (!isScanningChain) {
+                    if (phrase == "") { enterPhrase = true }
+                    else { scanChain(idx: scanIdx + 1, change: scanChange, legacy: true, gap: 20) }
+                }
+            }.padding()
             
             Button((tx == nil || ZNTransactionIsSigned(tx) != 0) ? "Scan Unsigned Tx" : "Scan private key") {
                 if (qr2Data == nil) { scanResult(result: UIPasteboard.general.string ?? "") }
@@ -328,7 +335,7 @@ struct ContentView: View {
                         if (legacy) { scanChain(idx: idx, change: change, legacy: false, gap: gap) }
                         else if (gap > 0) { scanChain(idx: idx + 1, change: change, legacy: true, gap: gap - 1) }
                         else if (change == 0) { scanChain(idx: 0, change: 1, legacy: true, gap: 20) }
-                        else { isScanningChain = false }
+                        else { phrase = ""; isScanningChain = false }
                     }
                     else if (res.chain_stats.funded_txo_sum == res.chain_stats.spent_txo_sum) {
                         if (legacy) { scanChain(idx: idx, change: change, legacy: false, gap: 20) }
@@ -342,6 +349,8 @@ struct ContentView: View {
                         qr2Data = qr2Label.data(using: .utf8)
                         qr2Label += " [\(res.chain_stats.funded_txo_sum - res.chain_stats.spent_txo_sum)]"
                         isScanningChain = false
+                        scanIdx = idx
+                        scanChange = change
                     }
                 }
             }
