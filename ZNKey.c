@@ -248,7 +248,7 @@ int ZNKeySetPrivKey(ZNKey *key, const char *privKey, ZNAddrParams params)
         }
 
         if ((len == 33 || len == 34) && data[0] == params.privKeyPrefix) {
-            r = ZNKeySetSecret(key, data + 1, (len == 34));
+            r = ZNKeySetSecret(key, data + 1, (len == 34) ? data[33] : 0);
         }
         else if (len == 32) {
             r = ZNKeySetSecret(key, data, 0);
@@ -296,7 +296,7 @@ size_t ZNKeyPrivKey(const ZNKey *key, char privKey[53], ZNAddrParams params)
     if (secp256k1_ec_seckey_verify(_znCtx, key->secret)) {
         data[0] = params.privKeyPrefix;
         memcpy(data + 1, key->secret, 32);
-        if (key->compressed) data[33] = 0x01;
+        if (key->compressed) data[33] = key->compressed;
         r = ZNBase58CheckEncode(privKey, 53, data, (key->compressed) ? 34 : 33);
         zn_mem_clean(data, sizeof(data));
     }

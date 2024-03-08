@@ -344,6 +344,7 @@ struct ContentView: View {
                     else {
                         qr1Data = String(validatingUTF8: addr)!.data(using: .utf8)
                         var privKey = [CChar](repeating: 0, count: 53)
+                        key.compressed = (legacy) ? 0x01 : 0x11
                         ZNKeyPrivKey(&key, &privKey, ZNMainNetParams)
                         qr2Label = String(validatingUTF8: privKey) ?? "[?]"
                         qr2Data = qr2Label.data(using: .utf8)
