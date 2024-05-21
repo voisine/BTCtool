@@ -147,7 +147,7 @@ int ZNKeySetBIP38Key(ZNKey *key, const char *bip38Key, const char *passphrase, Z
         zn_mem_clean(factorb, sizeof(factorb));
     }
     
-    ZNKeySetSecret(key, (uint8_t *)secret, flag & ZN_COMPRESSED_FLAG);
+    ZNKeySetSecret(key, (uint8_t *)secret, (flag & ZN_COMPRESSED_FLAG) == ZN_COMPRESSED_FLAG);
     zn_mem_clean(secret, sizeof(secret));
     ZNKeyLegacyAddr(key, address, params);
     ZNSHA256_2(hash, (uint8_t *)address, strlen(address));
