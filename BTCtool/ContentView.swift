@@ -38,6 +38,7 @@ struct ContentView: View {
     @State private var isScanningChain = false
     @State private var scanIdx = UInt32(0)
     @State private var scanChange = UInt32(0)
+    @State private var scanGap = Int(20)
     
     var body: some View {
         VStack {
@@ -56,7 +57,7 @@ struct ContentView: View {
             Button((phrase == "") ? "Scan backup phrase" : "Continue phrase scan") {
                 if (!isScanningChain) {
                     if (phrase == "") { enterPhrase = true }
-                    else { scanChain(idx: scanIdx + 1, change: scanChange, legacy: true, gap: 20) }
+                    else { scanChain(idx: scanIdx + 1, change: scanChange, legacy: true, gap: scanGap) }
                 }
             }.padding()
             
@@ -333,13 +334,23 @@ struct ContentView: View {
 
                     if (res.chain_stats.tx_count == 0) {
                         if (legacy) { scanChain(idx: idx, change: change, legacy: false, gap: gap) }
-                        else if (gap > 0) { scanChain(idx: idx + 1, change: change, legacy: true, gap: gap - 1) }
+                        else if (gap > 0) {
+                            scanIdx = idx
+                            scanChange = change
+                            scanGap = gap
+                            scanChain(idx: idx + 1, change: change, legacy: true, gap: gap - 1)
+                        }
                         else if (change == 0) { scanChain(idx: 0, change: 1, legacy: true, gap: 20) }
                         else { phrase = ""; isScanningChain = false }
                     }
                     else if (res.chain_stats.funded_txo_sum == res.chain_stats.spent_txo_sum) {
                         if (legacy) { scanChain(idx: idx, change: change, legacy: false, gap: 20) }
-                        else { scanChain(idx: idx + 1, change: change, legacy: true, gap: 20) }
+                        else {
+                            scanIdx = idx
+                            scanChange = change
+                            scanGap = 20
+                            scanChain(idx: idx + 1, change: change, legacy: true, gap: 20)
+                        }
                     }
                     else {
                         qr1Data = String(validatingUTF8: addr)!.data(using: .utf8)
@@ -352,10 +363,15 @@ struct ContentView: View {
                         isScanningChain = false
                         scanIdx = idx
                         scanChange = change
+                        scanGap = 20
                     }
                 }
             }
-            catch { print(error.localizedDescription) }
+            catch {
+                isScanningChain = false
+                qr2Label = error.localizedDescription
+                print(error.localizedDescription)
+            }
         }.resume()
     }
     
