@@ -131,7 +131,7 @@ static void _ZNCtxInit(void)
 int ZNSecp256k1ModAdd(uint8_t a[32], const uint8_t b[32])
 {
     _ZNCtxInit();
-    return secp256k1_ec_privkey_tweak_add(_znCtx, a, b);
+    return secp256k1_ec_seckey_tweak_add(_znCtx, a, b);
 }
 
 // multiplies 256bit big endian ints a and b (mod secp256k1 order) and stores the result in a
@@ -139,7 +139,7 @@ int ZNSecp256k1ModAdd(uint8_t a[32], const uint8_t b[32])
 int ZNSecp256k1ModMul(uint8_t a[32], const uint8_t b[32])
 {
     _ZNCtxInit();
-    return secp256k1_ec_privkey_tweak_mul(_znCtx, a, b);
+    return secp256k1_ec_seckey_tweak_mul(_znCtx, a, b);
 }
 
 // multiplies secp256k1 generator by 256bit big endian int i and stores the result in ec-point p (33 bytes)
