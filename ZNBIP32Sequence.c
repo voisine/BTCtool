@@ -87,8 +87,15 @@ static void _CKDpub(uint8_t K[33], uint8_t c[32], uint32_t i)
 // returns the master public key for the default BIP32 wallet layout - derivation path N(m/0H)
 ZNMasterPubKey ZNBIP32MasterPubKey(const uint8_t *seed, size_t seedLen)
 {
+    return ZNBIP32MasterPubKeyPath(seed, seedLen, 1, (const uint32_t []){ 0 | ZN_BIP32_HARD });
+}
+
+// returns the master public key for path N(m/child[0]/child[1]...child[depth-1])
+ZNMasterPubKey ZNBIP32MasterPubKeyPath(const uint8_t *seed, size_t seedLen, int depth, const uint32_t child[])
+{
     ZNMasterPubKey mpk = ZN_MASTER_PUBKEY_NONE;
     uint8_t I[64], *secret = I, *chain = I + 32;
+    size_t i;
     ZNKey key;
 
     assert(seed != NULL || seedLen == 0);
@@ -97,35 +104,25 @@ ZNMasterPubKey ZNBIP32MasterPubKey(const uint8_t *seed, size_t seedLen)
         ZNHMAC(I, ZNSHA512, sizeof(I), (uint8_t *)ZN_BIP32_SEED_KEY, strlen(ZN_BIP32_SEED_KEY), seed, seedLen);
         ZNKeySetSecret(&key, secret, 1);
         ZNKeyHash160(&key, (uint8_t *)&mpk.fingerPrint);
-        _CKDpriv(secret, chain, 0 | ZN_BIP32_HARD); // path m/0H
+        
+        for (i = 0; i < depth; i++) {
+            _CKDpriv(secret, chain, child[i]); // path m/child[0]...child[i]
+        }
+        
         memcpy(mpk.chainCode, chain, sizeof(mpk.chainCode));
         ZNKeySetSecret(&key, secret, 1);
         zn_mem_clean(I, sizeof(I));
-        ZNKeyPubKey(&key, mpk.pubKey); // path N(m/0H)
+        ZNKeyPubKey(&key, mpk.pubKey); // path N(m/child[0]/child[1]...child[depth-1])
         ZNKeyClean(&key);
     }
     
     return mpk;
 }
 
-// writes the public key for path N(mpk/chain/index) to pubKey
-// returns number of bytes written, maximum is 33
-size_t ZNBIP32PubKey(uint8_t pubKey[33], ZNMasterPubKey mpk, uint32_t chain, uint32_t index)
+// writes the public key for path N(mpk/chain/index) to key
+void ZNBIP32PubKey(ZNKey *key, ZNMasterPubKey mpk, uint32_t chain, uint32_t index)
 {
-    uint8_t chainCode[32];
-    
-    assert(pubKey != NULL);
-    assert(memcmp(&mpk, &ZN_MASTER_PUBKEY_NONE, sizeof(mpk)) != 0);
-    memcpy(chainCode, mpk.chainCode, sizeof(chainCode));
-    
-    if (pubKey) {
-        memcpy(pubKey, mpk.pubKey, sizeof(mpk.pubKey));
-        _CKDpub(pubKey, chainCode, chain); // path N(m/0H/chain)
-        _CKDpub(pubKey, chainCode, index); // index'th key in chain
-        zn_mem_clean(chainCode, sizeof(chainCode));
-    }
-    
-    return (pubKey) ? 33 : 0;
+    ZNBIP32PubKeyPath(key, mpk, 2, (const uint32_t []){ chain, index });
 }
 
 // sets the private key for path m/0H/chain/index to key
@@ -134,30 +131,57 @@ void ZNBIP32PrivKey(ZNKey *key, const uint8_t *seed, size_t seedLen, uint32_t ch
     ZNBIP32PrivKeyPath(key, seed, seedLen, 3, (const uint32_t []){ 0 | ZN_BIP32_HARD, chain, index });
 }
 
+// sets the public key for path N(mpk/child[0]/child[1]...child[depth-1]/chain/index) to each element in keys
+void ZNBIP32PubKeyList(ZNKey keys[], size_t keysCount, ZNMasterPubKey mpk, int depth, const uint32_t child[],
+                       const uint32_t chain[], const uint32_t index[])
+{
+    uint8_t chainCode[32], cC[32], pubKey[33], pK[33];
+    size_t i;
+    
+    assert(keys != NULL || keysCount == 0);
+    assert(memcmp(&mpk, &ZN_MASTER_PUBKEY_NONE, sizeof(mpk)) != 0);
+    memcpy(chainCode, mpk.chainCode, sizeof(chainCode));
+    memcpy(pubKey, mpk.pubKey, sizeof(mpk.pubKey));
+
+    for (i = 0; i < depth; i++) {
+        _CKDpub(pubKey, chainCode, child[i]); // path N(m/child[0]...child[i])
+    }
+    
+    for (i = 0; i < keysCount; i++) {
+        memcpy(pK, pubKey, sizeof(pK));
+        memcpy(cC, chainCode, sizeof(cC));
+        _CKDpub(pK, cC, chain[i]); // path N(m/child[0]...child[depth-1]/chain)
+        _CKDpub(pK, cC, index[i]); // path N(m/child[0]...child[depth-1]/chain/index)
+        ZNKeySetPubKey(&keys[i], pK, sizeof(pK));
+    }
+    
+    zn_mem_clean(chainCode, sizeof(chainCode));
+    zn_mem_clean(cC, sizeof(cC));
+}
+
 // sets the private key for path m/child[0]/child[1]...child[depth-1]/chain/index to each element in keys
 void ZNBIP32PrivKeyList(ZNKey keys[], size_t keysCount, const uint8_t *seed, size_t seedLen, int depth,
-                        const uint32_t child[], uint32_t chain, const uint32_t indexes[])
+                        const uint32_t child[], const uint32_t chain[], const uint32_t index[])
 {
     uint8_t I[64], s[32], c[32], *secret = I, *chainCode = I + 32;
     size_t i;
     
     assert(keys != NULL || keysCount == 0);
     assert(seed != NULL || seedLen == 0);
-    assert(indexes != NULL || keysCount == 0);
+    assert(index != NULL || keysCount == 0);
     
-    if (keys && keysCount > 0 && (seed || seedLen == 0) && indexes) {
+    if (keys && keysCount > 0 && (seed || seedLen == 0) && index) {
         ZNHMAC(I, ZNSHA512, sizeof(I), (const uint8_t *)ZN_BIP32_SEED_KEY, strlen(ZN_BIP32_SEED_KEY), seed, seedLen);
 
         for (i = 0; i < (size_t)depth; i++) {
             _CKDpriv(secret, chainCode, child[i]); // path m/child[0]/child[1]...child[depth-1]
         }
         
-        _CKDpriv(secret, chainCode, chain); // path m/child[0]/child[1]...child[depth-1]/chain
-    
         for (i = 0; i < keysCount; i++) {
             memcpy(s, secret, sizeof(s));
             memcpy(c, chainCode, sizeof(c));
-            _CKDpriv(s, c, indexes[i]); // index'th key in chain
+            _CKDpriv(s, c, chain[i]); // path m/child[0]/child[1]...child[depth-1]/chain
+            _CKDpriv(s, c, index[i]); // index'th key in chain
             ZNKeySetSecret(&keys[i], s, 1);
         }
         
@@ -167,8 +191,26 @@ void ZNBIP32PrivKeyList(ZNKey keys[], size_t keysCount, const uint8_t *seed, siz
     }
 }
 
-// sets the private key for the specified path to key
-// depth is the number of arguments used to specify the path
+// sets the public key for path N(mpk/child[0]/child[1]...child[depth-1]) to key
+void ZNBIP32PubKeyPath(ZNKey *key, ZNMasterPubKey mpk, int depth, const uint32_t child[])
+{
+    uint8_t chainCode[32], pubKey[33];
+    size_t i;
+    
+    assert(key != NULL);
+    assert(memcmp(&mpk, &ZN_MASTER_PUBKEY_NONE, sizeof(mpk)) != 0);
+    memcpy(chainCode, mpk.chainCode, sizeof(chainCode));
+    memcpy(pubKey, mpk.pubKey, sizeof(mpk.pubKey));
+
+    for (i = 0; i < depth; i++) {
+        _CKDpub(pubKey, chainCode, child[i]); // path N(m/child[0]...child[i])
+    }
+    
+    zn_mem_clean(chainCode, sizeof(chainCode));
+    ZNKeySetPubKey(key, pubKey, sizeof(pubKey));
+}
+
+// sets the private key for path m/child[0]/child[1]...child[depth-1] to key
 void ZNBIP32PrivKeyPath(ZNKey *key, const uint8_t *seed, size_t seedLen, int depth, const uint32_t child[])
 {
     uint8_t I[64], *secret = I, *chainCode = &I[32];

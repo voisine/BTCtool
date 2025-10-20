@@ -43,17 +43,23 @@ ZNMasterPubKey ZNBIP32MasterPubKey(const uint8_t *seed, size_t seedLen);
 // returns the master public key for path N(m/child[0]/child[1]...child[depth-1])
 ZNMasterPubKey ZNBIP32MasterPubKeyPath(const uint8_t *seed, size_t seedLen, int depth, const uint32_t child[]);
 
-// writes the public key for path N(mpk/chain/index) to pubKey
-// returns number of bytes written, maximum is 33
-size_t ZNBIP32PubKey(uint8_t pubKey[33], ZNMasterPubKey mpk, uint32_t chain, uint32_t index);
+// sets the public key for path N(mpk/chain/index) to key
+void ZNBIP32PubKey(ZNKey *key, ZNMasterPubKey mpk, uint32_t chain, uint32_t index);
 
 // sets the private key for path m/0H/chain/index to key
 void ZNBIP32PrivKey(ZNKey *key, const uint8_t *seed, size_t seedLen, uint32_t chain, uint32_t index);
 
+// sets the public key for path N(mpk/child[0]/child[1]...child[depth-1]/chain/index) to each element in keys
+void ZNBIP32PubKeyList(ZNKey keys[], size_t keysCount, ZNMasterPubKey mpk, int depth, const uint32_t child[],
+                       const uint32_t chain[], const uint32_t index[]);
+
 // sets the private key for path m/child[0]/child[1]...child[depth-1]/chain/index to each element in keys
 void ZNBIP32PrivKeyList(ZNKey keys[], size_t keysCount, const uint8_t *seed, size_t seedLen, int depth,
-                        const uint32_t child[], uint32_t chain, const uint32_t indexes[]);
-    
+                        const uint32_t child[], const uint32_t chain[], const uint32_t index[]);
+
+// sets the public key for path N(mpk/child[0]/child[1]...child[depth-1]) to key
+void ZNBIP32PubKeyPath(ZNKey *key, ZNMasterPubKey mpk, int depth, const uint32_t child[]);
+
 // sets the private key for path m/child[0]/child[1]...child[depth-1] to key
 void ZNBIP32PrivKeyPath(ZNKey *key, const uint8_t *seed, size_t seedLen, int depth, const uint32_t child[]);
 

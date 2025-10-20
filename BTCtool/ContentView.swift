@@ -140,7 +140,10 @@ struct ContentView: View {
             if (ZNPrivKeyIsValid(result, ZNMainNetParams) != 0) {
                 var key = ZNKey()
                 var buf = [UInt8](repeating: 0, count: 0x1000)
+                var addr = [CChar](repeating: 0, count: 75)
                 ZNKeySetPrivKey(&key, result, ZNMainNetParams)
+                ZNKeyAddress(&key, &addr, ZNMainNetParams)
+                print("got privkey for: %s\n", String(validatingUTF8: addr) ?? "[?]")
                 ZNTransactionSign(tx, 0, &key, 1)
                 ZNKeyClean(&key)
                 let bufLen = ZNTransactionSerialize(tx, &buf, buf.count)
@@ -219,7 +222,7 @@ struct ContentView: View {
             var hash = [UInt8](repeating: 0, count: 32)
             var script = [UInt8](repeating: 0, count: o.script.count/2)
 
-            if (o.value < ZNMinOutputAmount(UInt64(Int64(feeRate!.regular*1000)))) { continue }
+            if (o.value < ZNMinOutputAmount(UInt64(Int64(feeRate!.priority*1000)))) { continue }
             total += UInt64(o.value)
             ZNTransactionAddInput(tx, ZNHexDecode(&hash, 32, o.tx_hash), UInt32(o.tx_output_n), UInt64(o.value),
                                   ZNHexDecode(&script, o.script.count/2, o.script), o.script.count/2, nil, 0, nil, 0,
@@ -230,7 +233,7 @@ struct ContentView: View {
         var scriptPK = [UInt8](repeating:0, count:42)
         var scriptPKLen = ZNAddressScriptPubKey(&scriptPK, toAddress, ZNMainNetParams)
         ZNTransactionAddOutput(tx, outAmount, &scriptPK, scriptPKLen)
-        let fee = ZNFeeForTxVSize(UInt64(feeRate!.regular*1000), ZNTransactionVSize(tx) + Int(ZN_OUTPUT_SIZE))
+        let fee = ZNFeeForTxVSize(UInt64(feeRate!.priority*1000), ZNTransactionVSize(tx) + Int(ZN_OUTPUT_SIZE))
         scriptPKLen = ZNAddressScriptPubKey(&scriptPK, changeAddress, ZNMainNetParams)
 
         if (scriptPKLen > 0 && total > outAmount + fee) {

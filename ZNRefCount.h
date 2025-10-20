@@ -77,7 +77,7 @@ static void *_ZNRefNew(size_t size, void (*free_func)(void *))
 {
     _ZNRef *ptr = (_ZNRef *)calloc(1, size + sizeof(_ZNRef)) + 1;
 
-    assert(ptr != NULL);
+    assert(ptr - 1 != NULL);
     ptr[-1].free = (free_func) ? free_func : _ZNRefFree;
     zn_ref_retain(ptr);
     return ptr;
