@@ -12,17 +12,19 @@ struct ContentView: View {
     @State private var presentScanner = false
     @State private var enterEntropy = false
     @State private var entropy = ""
-    @State private var phrase = ""
+    @State private var enterPrivKey = false
+//    @State private var phrase = ""
     @State private var selectPassword = false
     @State private var passwordMismatch = false
     @State private var password = ""
     @State private var password2 = ""
+    @State private var privateKey = ""
     @State private var bip38Key = ""
-    @State private var seed: [UInt8] = []
+//    @State private var seed: [UInt8] = []
     @State private var enterPassword = false
     @State private var incorrectPassword = false
     @State private var enterTxInfo = false
-    @State private var enterPhrase = false
+//    @State private var enterPhrase = false
     @State private var fromAddress = ""
     @State private var toAddress = ""
     @State private var amount = ""
@@ -35,10 +37,10 @@ struct ContentView: View {
     @State private var showError = false
     @State private var error = ""
     @State private var tx: UnsafeMutablePointer<ZNTransaction>?
-    @State private var isScanningChain = false
-    @State private var scanIdx = UInt32(0)
-    @State private var scanChange = UInt32(0)
-    @State private var scanGap = Int(20)
+//    @State private var isScanningChain = false
+//    @State private var scanIdx = UInt32(0)
+//    @State private var scanChange = UInt32(0)
+//    @State private var scanGap = Int(20)
     
     var body: some View {
         VStack {
@@ -54,12 +56,12 @@ struct ContentView: View {
             }
             else if (qr2Label.count > 0) { Text(qr2Label).font(.system(.caption, design: .monospaced)) }
             
-            Button((phrase == "") ? "Scan backup phrase" : "Continue phrase scan") {
-                if (!isScanningChain) {
-                    if (phrase == "") { enterPhrase = true }
-                    else { scanChain(idx: scanIdx + 1, change: scanChange, legacy: true, gap: scanGap) }
-                }
-            }.padding()
+//            Button((phrase == "") ? "Scan backup phrase" : "Continue phrase scan") {
+//                if (!isScanningChain) {
+//                    if (phrase == "") { enterPhrase = true }
+//                    else { scanChain(idx: scanIdx + 1, change: scanChange, legacy: true, gap: scanGap) }
+//                }
+//            }.padding()
             
             Button((tx == nil || ZNTransactionIsSigned(tx) != 0) ? "Scan Unsigned Tx" : "Scan private key") {
                 if (qr2Data == nil) { scanResult(result: UIPasteboard.general.string ?? "") }
@@ -70,6 +72,10 @@ struct ContentView: View {
                 Button("Create Paper Key") { enterEntropy = true }.padding()
                 Button("Create Transaction") { utxos = []; enterTxInfo = true; }
             }
+            else {
+                if ((tx != nil && ZNTransactionIsSigned(tx) == 0)) { Button("Sign Transaction") { enterPrivKey = true } }
+                Button("< Back") { tx = nil; qr2Data = nil; qr2Label = ""; }
+            }
         }
         .buttonStyle(.bordered)
         .sheet(isPresented: $presentScanner, onDismiss: { if (bip38Key != "") { enterPassword = true } }) {
@@ -78,19 +84,24 @@ struct ContentView: View {
                 if case let .success(result) = response { scanResult(result: result.string) }
             }
         }
-        .alert("Enter 12 word phrase", isPresented: $enterPhrase) {
-            TextField("12 word phrase", text: $phrase)
-            Button("OK", action: {            
-                seed = [UInt8](repeating:0, count:64)
-                ZNBIP39DeriveKey(&seed, phrase, nil)
-                scanChain(idx: 0, change: 0, legacy: true, gap: 20)
-            })
-            Button("Cancel", role: .cancel) { phrase = "" }
-        }
+//        .alert("Enter 12 word phrase", isPresented: $enterPhrase) {
+//            TextField("12 word phrase", text: $phrase)
+//            Button("OK", action: {            
+//                seed = [UInt8](repeating:0, count:64)
+//                ZNBIP39DeriveKey(&seed, phrase, nil)
+//                scanChain(idx: 0, change: 0, legacy: true, gap: 20)
+//            })
+//            Button("Cancel", role: .cancel) { phrase = "" }
+//        }
         .alert("Enter 50 dice rolls", isPresented: $enterEntropy) {
             SecureField("dice results", text: $entropy)
             Button("OK", action: { selectPassword = true })
             Button("Cancel", role: .cancel) { entropy = "" }
+        }
+        .alert("Enter Private Key", isPresented: $enterPrivKey) {
+            TextField("Private Key", text: $privateKey)
+            Button("OK", action: { scanResult(result: privateKey); if (bip38Key != "") { enterPassword = true } })
+            Button("Cancel", role: .cancel) { privateKey = "" }
         }
         .alert((passwordMismatch) ? "Password Mismatch" : "Select Password", isPresented: $selectPassword) {
             SecureField("Password", text: $password)
@@ -128,11 +139,11 @@ struct ContentView: View {
     func scanResult(result: String) {
         if (ZNBIP38KeyIsValid(result) != 0) { bip38Key = result }
 
-        if (ZNBIP39PhraseIsValid(nil, result) != 0 && !isScanningChain) {
-            seed = [UInt8](repeating:0, count:64)
-            ZNBIP39DeriveKey(&seed, result, nil)
-            scanChain(idx: 0, change: 0, legacy: true, gap: 20)
-        }
+//        if (ZNBIP39PhraseIsValid(nil, result) != 0 && !isScanningChain) {
+//            seed = [UInt8](repeating:0, count:64)
+//            ZNBIP39DeriveKey(&seed, result, nil)
+//            scanChain(idx: 0, change: 0, legacy: true, gap: 20)
+//        }
 
         if (tx != nil) {
             qr1Data = nil
@@ -268,7 +279,8 @@ struct ContentView: View {
             qr2Label += "\n\(outAmount) " + (String(validatingUTF8: addr) ?? "[?]")
         }
         
-        qr2Label += "\n\(Double(fee/100)/Double(ZN_SATOSHIS/100)) fee"
+        let feeAmount = Double(fee/100)/Double(ZN_SATOSHIS/100)
+        qr2Label += "\n\(feeAmount) fee"
     }
     
     func fetchFeeRate() {
@@ -315,68 +327,68 @@ struct ContentView: View {
         if (self.utxos.count > 0) { fetchFeeRate() }
     }
 
-    func scanChain(idx: UInt32, change: UInt32, legacy: Bool, gap: Int) {
-        isScanningChain = true
-        var key = ZNKey()
-        var addr = [CChar](repeating:0, count:75)
-        ZNBIP32PrivKeyPath(&key, seed, seed.count, 3, [ZN_BIP32_HARD, change, idx])
-        if (legacy) { ZNKeyLegacyAddr(&key, &addr, ZNMainNetParams) }
-        else { ZNKeyAddress(&key, &addr, ZNMainNetParams) }
-        guard let url = URL(string: "https://blockstream.info/api/address/" + String(validatingUTF8: addr)!) 
-        else { return }
-        qr2Label = "m/0h/\(change)/\(idx)" + (legacy ? " legacy" : " segwit")
-        print("https://blockstream.info/api/address/" + String(validatingUTF8: addr)! + "\n" + qr2Label)
-        
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data else { return }
-            do {
-                let res = try JSONDecoder().decode(address_result.self, from: data)
-                DispatchQueue.main.async {
-                    print("tx_count:\(res.chain_stats.tx_count) " +
-                          "balance:\(res.chain_stats.funded_txo_sum - res.chain_stats.spent_txo_sum)\n")
-
-                    if (res.chain_stats.tx_count == 0) {
-                        if (legacy) { scanChain(idx: idx, change: change, legacy: false, gap: gap) }
-                        else if (gap > 0) {
-                            scanIdx = idx
-                            scanChange = change
-                            scanGap = gap
-                            scanChain(idx: idx + 1, change: change, legacy: true, gap: gap - 1)
-                        }
-                        else if (change == 0) { scanChain(idx: 0, change: 1, legacy: true, gap: 20) }
-                        else { phrase = ""; isScanningChain = false }
-                    }
-                    else if (res.chain_stats.funded_txo_sum == res.chain_stats.spent_txo_sum) {
-                        if (legacy) { scanChain(idx: idx, change: change, legacy: false, gap: 20) }
-                        else {
-                            scanIdx = idx
-                            scanChange = change
-                            scanGap = 20
-                            scanChain(idx: idx + 1, change: change, legacy: true, gap: 20)
-                        }
-                    }
-                    else {
-                        qr1Data = String(validatingUTF8: addr)!.data(using: .utf8)
-                        var privKey = [CChar](repeating: 0, count: 53)
-                        //key.compressed = (legacy) ? 0x01 : 0x11
-                        ZNKeyPrivKey(&key, &privKey, ZNMainNetParams)
-                        qr2Label = String(validatingUTF8: privKey) ?? "[?]"
-                        qr2Data = qr2Label.data(using: .utf8)
-                        qr2Label += " [\(res.chain_stats.funded_txo_sum - res.chain_stats.spent_txo_sum)]"
-                        isScanningChain = false
-                        scanIdx = idx
-                        scanChange = change
-                        scanGap = 20
-                    }
-                }
-            }
-            catch {
-                isScanningChain = false
-                qr2Label = error.localizedDescription
-                print(error.localizedDescription)
-            }
-        }.resume()
-    }
+//    func scanChain(idx: UInt32, change: UInt32, legacy: Bool, gap: Int) {
+//        isScanningChain = true
+//        var key = ZNKey()
+//        var addr = [CChar](repeating:0, count:75)
+//        ZNBIP32PrivKeyPath(&key, seed, seed.count, 3, [ZN_BIP32_HARD, change, idx])
+//        if (legacy) { ZNKeyLegacyAddr(&key, &addr, ZNMainNetParams) }
+//        else { ZNKeyAddress(&key, &addr, ZNMainNetParams) }
+//        guard let url = URL(string: "https://blockstream.info/api/address/" + String(validatingUTF8: addr)!) 
+//        else { return }
+//        qr2Label = "m/0h/\(change)/\(idx)" + (legacy ? " legacy" : " segwit")
+//        print("https://blockstream.info/api/address/" + String(validatingUTF8: addr)! + "\n" + qr2Label)
+//        
+//        URLSession.shared.dataTask(with: url) { data, response, error in
+//            guard let data = data else { return }
+//            do {
+//                let res = try JSONDecoder().decode(address_result.self, from: data)
+//                DispatchQueue.main.async {
+//                    print("tx_count:\(res.chain_stats.tx_count) " +
+//                          "balance:\(res.chain_stats.funded_txo_sum - res.chain_stats.spent_txo_sum)\n")
+//
+//                    if (res.chain_stats.tx_count == 0) {
+//                        if (legacy) { scanChain(idx: idx, change: change, legacy: false, gap: gap) }
+//                        else if (gap > 0) {
+//                            scanIdx = idx
+//                            scanChange = change
+//                            scanGap = gap
+//                            scanChain(idx: idx + 1, change: change, legacy: true, gap: gap - 1)
+//                        }
+//                        else if (change == 0) { scanChain(idx: 0, change: 1, legacy: true, gap: 20) }
+//                        else { phrase = ""; isScanningChain = false }
+//                    }
+//                    else if (res.chain_stats.funded_txo_sum == res.chain_stats.spent_txo_sum) {
+//                        if (legacy) { scanChain(idx: idx, change: change, legacy: false, gap: 20) }
+//                        else {
+//                            scanIdx = idx
+//                            scanChange = change
+//                            scanGap = 20
+//                            scanChain(idx: idx + 1, change: change, legacy: true, gap: 20)
+//                        }
+//                    }
+//                    else {
+//                        qr1Data = String(validatingUTF8: addr)!.data(using: .utf8)
+//                        var privKey = [CChar](repeating: 0, count: 53)
+//                        //key.compressed = (legacy) ? 0x01 : 0x11
+//                        ZNKeyPrivKey(&key, &privKey, ZNMainNetParams)
+//                        qr2Label = String(validatingUTF8: privKey) ?? "[?]"
+//                        qr2Data = qr2Label.data(using: .utf8)
+//                        qr2Label += " [\(res.chain_stats.funded_txo_sum - res.chain_stats.spent_txo_sum)]"
+//                        isScanningChain = false
+//                        scanIdx = idx
+//                        scanChange = change
+//                        scanGap = 20
+//                    }
+//                }
+//            }
+//            catch {
+//                isScanningChain = false
+//                qr2Label = error.localizedDescription
+//                print(error.localizedDescription)
+//            }
+//        }.resume()
+//    }
     
     struct UTXOs: Codable {
         let unspent_outputs: [UTXO]
