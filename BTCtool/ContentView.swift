@@ -13,18 +13,18 @@ struct ContentView: View {
     @State private var enterEntropy = false
     @State private var entropy = ""
     @State private var enterPrivKey = false
-//    @State private var phrase = ""
+    @State private var phrase = ""
     @State private var selectPassword = false
     @State private var passwordMismatch = false
     @State private var password = ""
     @State private var password2 = ""
     @State private var privateKey = ""
     @State private var bip38Key = ""
-//    @State private var seed: [UInt8] = []
+    @State private var seed: [UInt8] = []
     @State private var enterPassword = false
     @State private var incorrectPassword = false
     @State private var enterTxInfo = false
-//    @State private var enterPhrase = false
+    @State private var enterPhrase = false
     @State private var fromAddress = ""
     @State private var toAddress = ""
     @State private var amount = ""
@@ -34,8 +34,8 @@ struct ContentView: View {
     @State private var qr2Label = ""
     @State private var utxos: [UTXO] = []
     @State private var feeRate: feeRates? = nil
-    @State private var showError = false
-    @State private var error = ""
+    @State private var showStatus = false
+    @State private var status = ""
     @State private var tx: UnsafeMutablePointer<ZNTransaction>?
 //    @State private var isScanningChain = false
 //    @State private var scanIdx = UInt32(0)
@@ -73,7 +73,11 @@ struct ContentView: View {
                 Button("Create Transaction") { utxos = []; enterTxInfo = true; }
             }
             else {
-                if ((tx != nil && ZNTransactionIsSigned(tx) == 0)) { Button("Sign Transaction") { enterPrivKey = true } }
+                if (tx != nil) {
+                    if (ZNTransactionIsSigned(tx) == 0) { Button("Sign Transaction") { enterPrivKey = true } }
+                    else { Button("Send Transaction") { publishTx() } }
+                }
+                
                 Button("< Back") { tx = nil; qr2Data = nil; qr2Label = ""; }
             }
         }
@@ -86,7 +90,7 @@ struct ContentView: View {
         }
 //        .alert("Enter 12 word phrase", isPresented: $enterPhrase) {
 //            TextField("12 word phrase", text: $phrase)
-//            Button("OK", action: {            
+//            Button("OK", action: {
 //                seed = [UInt8](repeating:0, count:64)
 //                ZNBIP39DeriveKey(&seed, phrase, nil)
 //                scanChain(idx: 0, change: 0, legacy: true, gap: 20)
@@ -133,7 +137,7 @@ struct ContentView: View {
             Button("OK", action: { createTx() })
             Button("Cancel", role: .cancel) { }
         }
-        //.alert(error, isPresented: $showError)
+        .alert(status, isPresented: $showStatus) { Button("OK", action: {}) }
     }
 
     func scanResult(result: String) {
@@ -325,6 +329,27 @@ struct ContentView: View {
         }
         
         if (self.utxos.count > 0) { fetchFeeRate() }
+    }
+    
+    func publishTx() {
+        var buf = [UInt8](repeating: 0, count: 0x1000)
+        let bufLen = ZNTransactionSerialize(tx, &buf, buf.count)
+        guard let url = URL(string: "https://blockstream.info/api/tx") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.httpBody = buf.prefix(bufLen).reduce("") { $0 + String(format: "%02hhx", $1) }.data(using: .utf8)
+        print("https://blockstream.info/api/tx")
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let data = data else { return }
+            if let string = String(data: data, encoding: .utf8) {
+                status = string
+                showStatus = true
+                DispatchQueue.main.async { print("response:\n" + string + "\n") }
+            }
+            if let error = error { print(error.localizedDescription) }
+        }.resume()
+        // XXX notify on success
     }
 
 //    func scanChain(idx: UInt32, change: UInt32, legacy: Bool, gap: Int) {
