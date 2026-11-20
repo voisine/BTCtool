@@ -645,15 +645,14 @@ void ZNHMAC(uint8_t *mac, void (*hash)(uint8_t *, const uint8_t *, size_t), size
 {
     size_t i, padLen = (128 + dataLen)/sizeof(uint64_t) + 1, blockLen = (hashLen > 32) ? 128 : 64;
     uint8_t k[64];
-    uint64_t kopad[25], _kipad[0x1000], *kipad = (padLen <= 0x1000) ? _kipad : malloc(padLen);
+    uint64_t kopad[25], _kipad[0x1000], *kipad = (padLen <= 0x1000) ? _kipad : malloc(padLen * sizeof(uint64_t));
     
     assert(mac != NULL);
     assert(hash != NULL);
     assert(hashLen > 0 && hashLen <= 64 && (hashLen % 4) == 0);
     assert(key != NULL || keyLen == 0);
     assert(data != NULL || dataLen == 0);
-    if ((blockLen + dataLen)/sizeof(uint64_t) >= 0x1000)
-    if (keyLen > blockLen) hash(k, key, keyLen), key = k, keyLen = sizeof(k);
+    if (keyLen > blockLen) hash(k, key, keyLen), key = k, keyLen = hashLen;
     memset(kipad, 0, blockLen);
     memcpy(kipad, key, keyLen);
     for (i = 0; i < blockLen/sizeof(uint64_t); i++) kipad[i] ^= 0x3636363636363636;
@@ -664,7 +663,7 @@ void ZNHMAC(uint8_t *mac, void (*hash)(uint8_t *, const uint8_t *, size_t), size
     hash((uint8_t *)(kopad + blockLen/sizeof(uint64_t)), (uint8_t *)kipad, blockLen + dataLen);
     hash(mac, (uint8_t *)kopad, blockLen + hashLen);
     zn_mem_clean(k, sizeof(k));
-    zn_mem_clean(kipad, padLen);
+    zn_mem_clean(kipad, padLen * sizeof(uint64_t));
     zn_mem_clean(kopad, sizeof(kopad));
     if (kipad != _kipad) free(kipad);
 }

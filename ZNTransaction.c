@@ -412,7 +412,7 @@ ZNTransaction *ZNTransactionParse(const uint8_t *buf, size_t bufLen, size_t *off
         ZNSHA256_2(tx->wtxHash, buf, o);
         txBuf = (txLen <= sizeof(_txBuf)) ? _txBuf : malloc(txLen);
         ZNUInt32Set(txBuf, txLen, tx->version, &txOff);
-        ZNDataSet(txBuf, txLen, buf + txOff + 2, txLen - txOff, &txOff);
+        ZNDataSet(txBuf, txLen, buf + txOff + 2, txLen - txOff - sizeof(uint32_t), &txOff);
         ZNUInt32Set(txBuf, txLen, tx->lockTime, &txOff);
         ZNSHA256_2(tx->txHash, txBuf, txLen);
         if (txBuf != _txBuf) free(txBuf);

@@ -31,7 +31,7 @@ func bip38privKey(entropy: String, passphrase: String) -> (address: String?, bip
 
 @main
 struct BTCtoolApp: App {
-    //private var test = ZNRunTests()
+//    private var test = ZNRunTests()
     
     var body: some Scene {
         WindowGroup {
